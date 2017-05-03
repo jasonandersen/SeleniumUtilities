@@ -14,7 +14,7 @@ namespace SeleniumUtilities.Web
         // an IWebDriver instead of an ISearchContext.
         private IWebDriver driver;
 
-        // The host helps construct host-specific URLs.
+        // The host helps construct host-specific URLs. Can be null.
         private Host host;
 
         /// <summary>
@@ -26,6 +26,16 @@ namespace SeleniumUtilities.Web
         {
             this.driver = driver;
             this.host = host;
+        }
+
+        /// <summary>
+        /// Allows browser to be created with a specific host.
+        /// </summary>
+        /// <param name="driver"></param>
+        /// <param name="defaultTimeout"></param>
+        public Browser(IWebDriver driver, int defaultTimeout) : this(driver, null, defaultTimeout)
+        {
+
         }
 
         /// <summary>
@@ -43,9 +53,24 @@ namespace SeleniumUtilities.Web
         /// by the host, the path will be specified by the path argument.
         /// </summary>
         /// <param name="path"></param>
+        /// <exception cref="InvalidOperationException">Thrown when the browser was created without a host.</exception>
         public void NavigateToPath(string path)
         {
+            if (host == null)
+            {
+                throw new InvalidOperationException(
+                    "The specified host is null. Cannot navigate to a relative path.");
+            }
             string url = host.ConstructUrl(path);
+            driver.Navigate().GoToUrl(url);
+        }
+
+        /// <summary>
+        /// Navigates to an absolute URL.
+        /// </summary>
+        /// <param name="url"></param>
+        public void NavigateToUrl(string url)
+        {
             driver.Navigate().GoToUrl(url);
         }
 
